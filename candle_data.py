@@ -52,7 +52,8 @@ class CandleData:
         l = int(np.searchsorted(self.timestamps, start_time, side="left"))
         r = l + candle_width // self.resolution
 
-        assert self.timestamps[l] < end_time, "Asked for candle when market is closed during the while duration"
+        if self.timestamps[l] >= end_time:
+            return None
 
         while self.timestamps[l] < start_time:
             l += 1
