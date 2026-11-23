@@ -30,7 +30,7 @@ class CandleData:
         timestamp: np.datetime64,
         candle_width: int,
         time_is_open_time: bool,
-    ) -> tuple[int, int]:
+    ) -> tuple[int, int] | None:
         """
         Return [l, r), the indices of the candles covered by the
         requested time range.
