@@ -93,12 +93,15 @@ class CandleData:
         timestamp: np.datetime64,
         candle_width: int,
         time_is_open_time: bool = True,
-    ) -> float:
-        l, r = self._get_range(
+    ) -> float | None:
+        lr_tup = self._get_range(
             timestamp,
             candle_width,
             time_is_open_time,
         )
+        if lr_tup is None:
+            return None
+        l, r = lr_tup
 
         return float(self.range_min[l, r - 1])
 
@@ -108,11 +111,14 @@ class CandleData:
         candle_width: int,
         time_is_open_time: bool = True,
     ) -> float:
-        l, r = self._get_range(
+        lr_tup = self._get_range(
             timestamp,
             candle_width,
             time_is_open_time,
         )
+        if lr_tup is None:
+            return None
+        l, r = lr_tup
 
         return float(self.range_max[l, r - 1])
 
@@ -122,11 +128,14 @@ class CandleData:
         candle_width: int,
         time_is_open_time: bool = True,
     ) -> float:
-        l, _ = self._get_range(
+        lr_tup = self._get_range(
             timestamp,
             candle_width,
             time_is_open_time,
         )
+        if lr_tup is None:
+            return None
+        l, _ = lr_tup
 
         return float(self.open[l])
 
@@ -136,11 +145,14 @@ class CandleData:
         candle_width: int,
         time_is_open_time: bool = True,
     ) -> float:
-        _, r = self._get_range(
+        lr_tup = self._get_range(
             timestamp,
             candle_width,
             time_is_open_time,
         )
+        if lr_tup is None:
+            return None
+        _, r = lr_tup
 
         return float(self.close[r - 1])
     def run_strategy(self,
@@ -150,7 +162,7 @@ class CandleData:
             on_tick: callable,
             indicators: dict[str, object],
             params,
-        ):
+        ) -> tuple[float, list[Trade]]:
         # print(f"started : {start_time}")
         current_amount = starting_amount
         l = int(np.searchsorted(self.timestamps, start_time))
