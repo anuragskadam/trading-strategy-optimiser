@@ -92,7 +92,7 @@ class CandleData:
         self,
         timestamp: np.datetime64,
         candle_width: int,
-        time_is_open_time: bool = True,
+        time_is_open_time: bool,
     ) -> float | None:
         lr_tup = self._get_range(
             timestamp,
@@ -109,7 +109,7 @@ class CandleData:
         self,
         timestamp: np.datetime64,
         candle_width: int,
-        time_is_open_time: bool = True,
+        time_is_open_time: bool,
     ) -> float:
         lr_tup = self._get_range(
             timestamp,
@@ -126,7 +126,7 @@ class CandleData:
         self,
         timestamp: np.datetime64,
         candle_width: int,
-        time_is_open_time: bool = True,
+        time_is_open_time: bool,
     ) -> float:
         lr_tup = self._get_range(
             timestamp,
@@ -143,7 +143,7 @@ class CandleData:
         self,
         timestamp: np.datetime64,
         candle_width: int,
-        time_is_open_time: bool = True,
+        time_is_open_time: bool,
     ) -> float:
         lr_tup = self._get_range(
             timestamp,
