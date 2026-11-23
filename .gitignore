@@ -12,4 +12,5 @@ __pycache__/
 # secret folders
 # environments
 /Ignored/
+/data/*
 

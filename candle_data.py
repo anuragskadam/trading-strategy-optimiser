@@ -6,13 +6,14 @@ from trade import Trade
 import plotly.graph_objects as go
 
 class CandleData:
-    def __init__(self, file_name: str):
+    def __init__(self, file_name: str, convert_to_utc: bool):
         df = pd.read_csv(file_name)
+        if not convert_to_utc:
+            timestamps = pd.to_datetime(df["timestamp"], utc=True)
+        else:
+            timestamps = [pd.Timestamp(s).tz_localize(None).to_datetime64() for s in df["timestamp"]]
 
-        timestamps = pd.to_datetime(df["timestamp"], utc=True)
-        self.timestamps: npt.NDArray[np.datetime64] = timestamps.to_numpy(
-            dtype="datetime64[ns]"
-        )
+        self.timestamps: npt.NDArray[np.datetime64] = np.array(timestamps, dtype="datetime64[ns]")
         self.open: npt.NDArray[np.float64] = df["open"].to_numpy(dtype=np.float64)
         self.high: npt.NDArray[np.float64] = df["high"].to_numpy(dtype=np.float64)
         self.low: npt.NDArray[np.float64] = df["low"].to_numpy(dtype=np.float64)
@@ -21,7 +22,6 @@ class CandleData:
         assert len(self.timestamps) >= 2, "Data too short"
         delta = self.timestamps[1] - self.timestamps[0]
         self.resolution = int(delta / np.timedelta64(1, "s"))
-
         self.range_min = SparseTable(self.low, np.minimum)
         self.range_max = SparseTable(self.high, np.maximum)
 
@@ -65,17 +65,21 @@ class CandleData:
         self,
         timestamp: np.datetime64,
         candle_width: int,
-        time_is_open_time: bool = True,
-    ) -> tuple[float, float, float, float]:
+        time_is_open_time: bool,
+    ) -> tuple[float, float, float, float] | None:
         """
         Return (open, high, low, close) for the requested time range.
         """
 
-        l, r = self._get_range(
+        lr_tuple = self._get_range(
             timestamp,
             candle_width,
             time_is_open_time,
         )
+
+        if lr_tuple is None:
+            return None
+        l, r = lr_tuple
 
         return (
             float(self.open[l]),
