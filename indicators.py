@@ -5,16 +5,25 @@ from candle_data import CandleData
 class SMA:
     def __init__(self, candle_data: CandleData, candle_width: int, window_size: int):
         self.data = candle_data
-        self.candle_width = candle_width
+        self.candle_width_sec = candle_width
+        self.candle_width: np.timedelta64 = np.timedelta64(candle_width, 's')
         self.window_size = window_size
 
     def __call__(self, timestamp: np.datetime64) -> float:
-        total_width = self.candle_width * self.window_size
-        l, r = self.data._get_range(timestamp, total_width, time_is_open_time=False)
-        step = self.candle_width // self.data.resolution
-        # Take closes at each candle boundary
-        closes = self.data.close[l + step - 1 : r : step]
-        return float(np.mean(closes))
+        t = timestamp
+        sum_of_closes = 0.0
+        count = 0
+        while count < self.window_size:
+            close = self.data.get_close(t, self.candle_width_sec, False)
+            if close is not None:
+                sum_of_closes += close
+                count += 1
+            elif t < self.data.timestamps[0]:
+                return
+            t -= self.candle_width
+        if count == 0:
+            return 0.0;
+        return sum_of_closes / count
 
 
 class EMA:
