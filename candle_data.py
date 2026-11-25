@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 class CandleData:
     def __init__(self, file_name: str, convert_to_utc: bool):
         df = pd.read_csv(file_name)
-        if not convert_to_utc:
+        if convert_to_utc:
             timestamps = pd.to_datetime(df["timestamp"], utc=True)
         else:
             timestamps = [pd.Timestamp(s).tz_localize(None).to_datetime64() for s in df["timestamp"]]
@@ -38,7 +38,7 @@ class CandleData:
 
         assert self.resolution is not None
         assert candle_width > 0
-        assert candle_width % self.resolution == 0
+        assert candle_width % self.resolution == 0, (candle_width, self.resolution)
 
         width = np.timedelta64(candle_width, "s")
 

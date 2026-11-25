@@ -9,7 +9,7 @@ class Trade:
         stop_loss: float,
         target: float,
     ):
-        assert (stop_loss < buy_price < target) or (target < buy_price < stop_loss)
+        assert (stop_loss < buy_price < target) or (target < buy_price < stop_loss), (buy_price, stop_loss, target)
         self.amount = amount
         self.is_long_trade = stop_loss < target
         self.start_time = start_time
